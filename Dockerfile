@@ -4,14 +4,11 @@ ENV OPENVSCODE_SERVER_ROOT="/home/.openvscode-server"
 ENV OPENVSCODE="${OPENVSCODE_SERVER_ROOT}/bin/openvscode-server"
 
 
+
 # Install dependencies
 RUN sudo apt-get update \
     && sudo apt-get install -y --no-install-recommends \
-        xvfb x11vnc fluxbox dbus-x11 x11-utils x11-xserver-utils xdg-utils \
-        fbautostart xterm eterm gnome-terminal gnome-keyring seahorse nautilus \
-        libx11-dev libxkbfile-dev libsecret-1-dev libnotify4 libnss3 libxss1 \
-        libasound2 libgbm1 xfonts-base xfonts-terminus fonts-noto fonts-wqy-microhei \
-        fonts-droid-fallback vim-tiny nano libgconf2-dev libgtk-3-dev twm openjdk-21-jdk python3 nodejs npm\
+        openjdk-21-jdk python3 nodejs npm\
     && sudo apt-get clean && sudo rm -rf /var/cache/apt/* && sudo rm -rf /var/lib/apt/lists/* && sudo rm -rf /tmp/*
 
 ENV DISABLE_V8_COMPILE_CACHE=1
@@ -38,3 +35,8 @@ RUN \
     )\
     # Install the $exts
     && for ext in "${exts[@]}"; do ${OPENVSCODE} --install-extension "${ext}"; done
+
+EXPOSE 3000
+
+ENTRYPOINT [ "/bin/sh", "-c", "exec ${OPENVSCODE_SERVER_ROOT}/bin/openvscode-server --host 0.0.0.0 --without-connection-token \"${@}\"", "--" ]
+
